@@ -13,12 +13,13 @@ object Usage {
   implicit def apply[F[_]](implicit ev: Usage[F]): Usage[F] = ev
 
   final case class CustomerId(CustomerId: String) extends AnyVal
+  implicit def stringToInt(CustomerId: String) = CustomerId.toInt
 
   final case class Query(greeting: String) extends AnyVal
   object Query {
     implicit val greetingEncoder: Encoder[Query] = new Encoder[Query] {
       final def apply(a: Query): Json = Json.obj(
-        ("usage", Json.fromString(a.greeting)),
+        ("usage", Json.fromInt(a.greeting)),
       )
     }
     implicit def greetingEntityEncoder[F[_]]: EntityEncoder[F, Query] =
@@ -26,9 +27,11 @@ object Usage {
   }
 
   def impl[F[_]: Applicative]: Usage[F] = new Usage[F]{
-    def fetchUsagePerCustomerOfCurrentBillPeriod(n: Usage.CustomerId): F[Query] =
-      Query("customerId " + n.CustomerId).pure[F]
-  }
+    def fetchUsagePerCustomerOfCurrentBillPeriod(n: Usage.CustomerId): F[Query] = {
+      Usage.stringToInt(n.CustomerId)
+      Query(n.CustomerId).pure[F]
+    }
+    }
 
 }
 
