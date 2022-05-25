@@ -30,4 +30,16 @@ object Scalahttp4sdemoRoutes {
         } yield resp
     }
   }
+
+  def UsageRoutes[F[_]: Sync](U: Usage[F]): HttpRoutes[F] = {
+    val dsl = new Http4sDsl[F]{}
+    import dsl._
+    HttpRoutes.of[F] {
+      case GET -> Root / "reserved-usage" / customerId =>
+        for {
+          query <- U.fetchUsagePerCustomerOfCurrentBillPeriod(Usage.CustomerId(customerId))
+          resp <- Ok(query)
+        } yield resp
+    }
+  }
 }
