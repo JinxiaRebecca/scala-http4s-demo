@@ -2,7 +2,6 @@ package com.example.scalahttp4sdemo
 
 import cats.effect.Sync
 import cats.implicits._
-import org.http4s.circe._
 import org.http4s.{HttpRoutes, ParseFailure, QueryParamDecoder}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.impl.{QueryParamDecoderMatcher, ValidatingQueryParamDecoderMatcher}
@@ -12,8 +11,8 @@ import java.time.format.DateTimeFormatter
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import io.circe.syntax._
 import io.circe.generic.auto._
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 
 
 object Scalahttp4sdemoRoutes {
@@ -146,7 +145,7 @@ object Scalahttp4sdemoRoutes {
         val smsUseLeft = packageOfCustomer.phoneLimitation - usages.map(_.smsUse).sum
         val now = LocalDate.now()
         val billStartTime: LocalDate = LocalDate.of(now.getYear, now.getMonth, customer.billDate.getDayOfMonth)
-        Ok(UsageResponse(phoneUseLeft, smsUseLeft, billStartTime).asJson)
+        Ok(UsageResponse(phoneUseLeft, smsUseLeft, billStartTime))
     }
   }
 
@@ -158,7 +157,7 @@ object Scalahttp4sdemoRoutes {
         val allBills = customers.map(
           calculateAllBillsPerCustomer
         )
-        Ok(allBills.asJson)
+        Ok(allBills)
     }
   }
 
