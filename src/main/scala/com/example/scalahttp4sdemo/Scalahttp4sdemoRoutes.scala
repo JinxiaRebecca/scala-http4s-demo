@@ -39,6 +39,15 @@ object Scalahttp4sdemoRoutes {
                             smsLimitation: Int,
                             exPhoneFee: BigDecimal,
                             exSmsFee: BigDecimal)
+  final case class BillResponse(
+                               customerId: Int,
+                               customerName: String,
+                               packageName: String,
+                               phoneUse: Int,
+                               smsUse: Int,
+                               consumptionCost: BigDecimal,
+                               billStartDate: LocalDate
+                               )
   def jokeRoutes[F[_]: Sync](J: Jokes[F]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F]{}
     import dsl._
@@ -80,7 +89,7 @@ object Scalahttp4sdemoRoutes {
     Packages(2, "Standard", 58, 30, 40, 1, 0.5),
     Packages(3, "Premier", 188, 300, 200, 1, 0.5)
   )
-  val CustomerDB: mutable.ListBuffer[Customer] = ListBuffer(
+  val customers: List[Customer] = List(
     Customer(1, "Lily", 1, now.minusDays(7)),
     Customer(2, "Coco", 2, now.minusDays(5)),
     Customer(3, "Nico", 3, now.minusDays(6)),
@@ -98,7 +107,7 @@ object Scalahttp4sdemoRoutes {
 
   def filterCurrentBillPeriod(date: LocalDate, billDate: LocalDate): Boolean = {
     val now = LocalDate.now()
-    val bill = billDate.getDayOfMonth()
+    val bill = billDate.getDayOfMonth
     val currentBillBeginDate = MonthDay.of(now.getMonth, bill)
     val currentBillEndDate = MonthDay.of(now.getMonth.plus(1), bill - 1)
     val compareMonthDate = MonthDay.from(date)
@@ -106,25 +115,52 @@ object Scalahttp4sdemoRoutes {
       (compareMonthDate.isBefore(currentBillEndDate) || compareMonthDate.equals(currentBillEndDate))
   }
   def calculateUsagesPerCustomerOfCurrentBillPeriod(customer: Customer):ListBuffer[Usage] =
-    UsagesDB.filter((usage) => usage.customerId == customer.id)
-    .filter((usage) => filterCurrentBillPeriod(usage.consumptionDate, customer.billDate))
+    UsagesDB.filter(usage => usage.customerId == customer.id)
+    .filter(usage => filterCurrentBillPeriod(usage.consumptionDate, customer.billDate))
   def fetchPackageOfCustomer(customer: Customer): Packages =
     PackagesDB.filter(_.id == customer.packageId).head
+
+  def calculateAllBillsPerCustomer(customer: Customer): BillResponse = {
+    val usages = calculateUsagesPerCustomerOfCurrentBillPeriod(customer)
+    val packages = fetchPackageOfCustomer(customer)
+    val phoneUse = packages.phoneLimitation - usages.map(_.phoneUse).sum
+    val smsUse = packages.smsLimitation -usages.map(_.smsUse).sum
+    val exPhoneUseFee: BigDecimal = if (phoneUse > 0)  packages.exPhoneFee * phoneUse else 0
+    val exSmsUseFee: BigDecimal = if (smsUse > 0) packages.exSmsFee * smsUse else 0
+    val consumptionCost = packages.subscriptionFee + exPhoneUseFee + exSmsUseFee
+    val now = LocalDate.now()
+    val billStartDate = LocalDate.of(now.getYear, now.getMonth, customer.billDate.getDayOfMonth)
+    BillResponse(customer.id, customer.name, packages.name, phoneUse, smsUse, consumptionCost, billStartDate)
+  }
+
 
   def UsageRoutes[F[_]: Sync]: HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
     HttpRoutes.of[F] {
       case GET -> Root / "reserved-usage" :? CustomerIdQueryParamMather(customerId) =>
-        val customer: Customer = CustomerDB.filter((customer) => customer.id == customerId)
-          .head
+        val customer: Customer = customers.filter(customer => customer.id == customerId).head
         val usages = calculateUsagesPerCustomerOfCurrentBillPeriod(customer)
         val packageOfCustomer = fetchPackageOfCustomer(customer)
-        val phoneUseLeft = packageOfCustomer.phoneLimitation - usages.map(_.phoneUse).reduce(_ + _)
-        val smsUseLeft = packageOfCustomer.phoneLimitation - usages.map(_.smsUse).reduce(_ + _)
+        val phoneUseLeft = packageOfCustomer.phoneLimitation - usages.map(_.phoneUse).sum
+        val smsUseLeft = packageOfCustomer.phoneLimitation - usages.map(_.smsUse).sum
         val now = LocalDate.now()
         val billStartTime: LocalDate = LocalDate.of(now.getYear, now.getMonth, customer.billDate.getDayOfMonth)
         Ok(UsageResponse(phoneUseLeft, smsUseLeft, billStartTime).asJson)
     }
   }
+
+  def BillRoutes[F[_] :Sync]: HttpRoutes[F] = {
+    val dsl = new Http4sDsl[F] {}
+    import dsl._
+    HttpRoutes.of[F] {
+      case GET -> Root / "all-bills" =>
+        val allBills = customers.map(
+          calculateAllBillsPerCustomer
+        )
+        Ok(allBills.asJson)
+    }
+  }
+
+
 }

@@ -24,7 +24,8 @@ object Scalahttp4sdemoServer {
       httpApp = (
         Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
-          Scalahttp4sdemoRoutes.UsageRoutes[F]
+          Scalahttp4sdemoRoutes.UsageRoutes[F] <+>
+          Scalahttp4sdemoRoutes.BillRoutes[F]
       ).orNotFound
 
       // With Middlewares in place
