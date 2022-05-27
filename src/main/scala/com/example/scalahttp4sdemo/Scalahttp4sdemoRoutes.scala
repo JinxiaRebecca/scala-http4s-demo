@@ -122,14 +122,14 @@ object Scalahttp4sdemoRoutes {
   def calculateAllBillsPerCustomer(customer: Customer): BillResponse = {
     val usages = calculateUsagesPerCustomerOfCurrentBillPeriod(customer)
     val packages = fetchPackageOfCustomer(customer)
-    val phoneUse = packages.phoneLimitation - usages.map(_.phoneUse).sum
-    val smsUse = packages.smsLimitation -usages.map(_.smsUse).sum
-    val exPhoneUseFee: BigDecimal = if (phoneUse > 0)  packages.exPhoneFee * phoneUse else 0
-    val exSmsUseFee: BigDecimal = if (smsUse > 0) packages.exSmsFee * smsUse else 0
+    val phoneUseLeft = usages.map(_.phoneUse).sum - packages.phoneLimitation
+    val smsUseLeft = usages.map(_.smsUse).sum - packages.smsLimitation
+    val exPhoneUseFee: BigDecimal = if (phoneUseLeft > 0)  packages.exPhoneFee * phoneUseLeft else 0
+    val exSmsUseFee: BigDecimal = if (smsUseLeft > 0) packages.exSmsFee * smsUseLeft else 0
     val consumptionCost = packages.subscriptionFee + exPhoneUseFee + exSmsUseFee
     val now = LocalDate.now()
     val billStartDate = LocalDate.of(now.getYear, now.getMonth, customer.billDate.getDayOfMonth)
-    BillResponse(customer.id, customer.name, packages.name, phoneUse, smsUse, consumptionCost, billStartDate)
+    BillResponse(customer.id, customer.name, packages.name, usages.map(_.phoneUse).sum, usages.map(_.smsUse).sum, consumptionCost, billStartDate)
   }
 
 
