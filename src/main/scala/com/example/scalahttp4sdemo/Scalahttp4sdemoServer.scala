@@ -16,6 +16,9 @@ object Scalahttp4sdemoServer {
       client <- Stream.resource(EmberClientBuilder.default[F].build)
       helloWorldAlg = HelloWorld.impl[F]
       jokeAlg = Jokes.impl[F](client)
+      usageAlg = UsageService.impl[F]
+      customerAlg = CustomerService.impl[F]
+      packageAlg = PackageService.impl[F]
 
       // Combine Service Routes into an HttpApp.
       // Can also be done via a Router if you
@@ -24,7 +27,7 @@ object Scalahttp4sdemoServer {
       httpApp = (
         Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
-          Scalahttp4sdemoRoutes.UsageRoutes[F] <+>
+          Scalahttp4sdemoRoutes.UsageRoutes[F](usageAlg, customerAlg, packageAlg) <+>
           Scalahttp4sdemoRoutes.BillRoutes[F]
       ).orNotFound
 
