@@ -1,6 +1,6 @@
 package com.example.scalahttp4sdemo
 
-import java.time.{LocalDate, MonthDay}
+import java.time.{LocalDate}
 
 
 class UsageService {
@@ -20,21 +20,11 @@ class UsageService {
     Usage(5, 1, 5, 2, now.minusDays(3)),
     Usage(6, 1, 1, 0, now.minusDays(2))
   )
-  implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
-  private def filterCurrentBillPeriod(date: LocalDate, billDate: LocalDate): Boolean = {
-    val now = LocalDate.now()
-    val bill = billDate.getDayOfMonth
-    val currentBillBeginDate = MonthDay.of(now.getMonth, bill)
-    val currentBillEndDate = MonthDay.of(now.getMonth.plus(1), bill - 1)
-    val compareMonthDate = MonthDay.from(date)
-    (compareMonthDate.isAfter(currentBillBeginDate) || compareMonthDate.equals(currentBillBeginDate) ) &&
-      (compareMonthDate.isBefore(currentBillEndDate) || compareMonthDate.equals(currentBillEndDate))
-  }
 
   private def fetchTotalUsagesByCustomer(customer: Customer): List[Usage] =
     usages.filter(_.customerId == customer.id)
-    .filter(usage => filterCurrentBillPeriod(usage.consumptionDate, customer.billDate))
+    .filter(usage => Utils().filterCurrentBillPeriod(usage.consumptionDate, customer.billDate))
 
   def calculatePhoneUsagesPerCustomerOfCurrentBillPeriod(customer: Customer): Int =
     fetchTotalUsagesByCustomer(customer).map(_.phoneUse).sum
