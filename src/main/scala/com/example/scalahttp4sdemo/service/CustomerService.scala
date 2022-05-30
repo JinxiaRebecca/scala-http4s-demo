@@ -1,5 +1,7 @@
 package com.example.scalahttp4sdemo.service
 
+import com.example.scalahttp4sdemo.dao.CustomerDao
+
 import java.time.LocalDate
 
 case class Customer(
@@ -9,16 +11,9 @@ case class Customer(
                      var subscribedDate: LocalDate
                    )
 
-class CustomerService {
-  val now: LocalDate = LocalDate.now()
-  val customers: List[Customer] = List(
+class CustomerService(customerDao: CustomerDao) {
 
-    Customer(1, "Lily", 1, now.minusDays(7)),
-    Customer(2, "Coco", 2, now.minusDays(5)),
-    Customer(3, "Nico", 3, now.minusDays(6)),
-  )
-
-  def fetchCustomerByCustomerId(id: Int): Customer = customers.filter(_.id == id).head match {
+  def fetchCustomerByCustomerId(id: Int): Customer = customerDao.fetchCustomerById(id) match {
     case customer: Customer => customer
     case _ => throw new RuntimeException("customer not exist")
   }
