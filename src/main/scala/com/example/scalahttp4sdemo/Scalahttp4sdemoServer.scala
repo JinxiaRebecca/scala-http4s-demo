@@ -3,6 +3,8 @@ package com.example.scalahttp4sdemo
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
 import com.comcast.ip4s._
+import com.example.scalahttp4sdemo.dao.UsageDao
+import com.example.scalahttp4sdemo.service.{CustomerService, PackageService, UsageService}
 import fs2.Stream
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
@@ -15,6 +17,9 @@ object Scalahttp4sdemoServer {
       client <- Stream.resource(EmberClientBuilder.default[F].build)
       helloWorldAlg = HelloWorld.impl[F]
       jokeAlg = Jokes.impl[F](client)
+      customerService = new  CustomerService()
+      usageService = new UsageService(new UsageDao())
+      packageService=  new PackageService()
 
       // Combine Service Routes into an HttpApp.
       // Can also be done via a Router if you
@@ -22,7 +27,8 @@ object Scalahttp4sdemoServer {
       // in the underlying routes.
       httpApp = (
         Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg)
+        Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
+          Scalahttp4sdemoRoutes.UsageRoutes[F](customerService, usageService, packageService)
       ).orNotFound
 
       // With Middlewares in place
