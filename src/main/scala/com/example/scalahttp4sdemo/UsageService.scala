@@ -1,15 +1,15 @@
 package com.example.scalahttp4sdemo
 
 import java.time.{LocalDate}
-
+case class Usage(
+                  id: Int,
+                  customerId: Int,
+                  phoneUse: Int,
+                  smsUse: Int,
+                  consumptionDate: LocalDate)
 
 class UsageService {
-  case class Usage(
-                        var  id: Int,
-                        var customerId: Int,
-                        var  phoneUse: Int,
-                        var  smsUse: Int,
-                        var  consumptionDate: LocalDate)
+
 
   val now = LocalDate.now()
   val usages: List[Usage] = List(
