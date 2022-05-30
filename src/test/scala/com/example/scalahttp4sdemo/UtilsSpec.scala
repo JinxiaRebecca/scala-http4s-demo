@@ -30,6 +30,15 @@ class UtilsSpec extends AnyWordSpec with Matchers {
     "return false when verifying a specific bill period given the start date is after end date" in {
       Utils.filterSpecificBillPeriod(now, now.plusDays(1), now) shouldEqual false
     }
+
+    "return bill date when querying the current bill date given the valid subscribedDate and latestBillDate and queryDate" in {
+      Utils.getTheCurrentBillDate(now, now, now) shouldEqual now
+      Utils.getTheCurrentBillDate(now, now, now.plusDays(1)) shouldEqual now.plusMonths(1)
+      Utils.getTheCurrentBillDate(LocalDate.of(2022, 4,8), LocalDate.of(2022, 5,8), LocalDate.of(2022, 5, 20)) shouldEqual LocalDate.of(2022, 6, 8)
+      Utils.getTheCurrentBillDate(LocalDate.of(2022, 1, 31), LocalDate.of(2022, 1, 31), LocalDate.of(2022, 2, 5)) shouldEqual LocalDate.of(2022, 2, 28)
+      Utils.getTheCurrentBillDate(LocalDate.of(2021, 12, 5), LocalDate.of(2021, 12, 5), LocalDate.of(2022, 12, 8)) shouldEqual LocalDate.of(2022, 1, 5)
+    }
+
   }
 
 }
