@@ -31,6 +31,11 @@ class CustomerServiceSpec extends AnyWordSpec with Matchers with MockitoSugar {
       assertThrows[RuntimeException](customerService.fetchCustomerByCustomerId(-1))
     }
 
+    "return all customer list when query all customers" in {
+      when(mockedCustomerDao.fetchAllCustomers()) thenReturn mockedCustomers
+      customerService.fetchAllCustomers() shouldEqual mockedCustomers
+    }
+
 
   }
 

@@ -12,9 +12,12 @@ case class Customer(
                    )
 
 class CustomerService(customerDao: CustomerDao) {
+  def fetchAllCustomers(): List[Customer] = customerDao.fetchAllCustomers()
+
 
   def fetchCustomerByCustomerId(id: Int): Customer = customerDao.fetchCustomerById(id) match {
     case customer: Customer => customer
     case _ => throw new RuntimeException("customer not exist")
   }
+  
 }
