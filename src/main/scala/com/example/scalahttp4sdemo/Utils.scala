@@ -5,9 +5,10 @@ import java.time.LocalDate
 object Utils {
   implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
-  def filterSpecificBillPeriod(consumptionDate: LocalDate, startTime: LocalDate, endTime: LocalDate): Boolean = {
-    (consumptionDate.isAfter(startTime) || consumptionDate.isEqual(startTime)) &&
-      consumptionDate.isBefore(endTime) || consumptionDate.isEqual(endTime)
+  def filterSpecificBillPeriod(consumptionDate: LocalDate, startDate: LocalDate, endDate: LocalDate): Boolean = {
+    startDate.isBefore(endDate) &&
+      ((consumptionDate.isAfter(startDate) || consumptionDate.isEqual(startDate)) &&
+        consumptionDate.isBefore(endDate) || consumptionDate.isEqual(endDate))
   }
 
 }
