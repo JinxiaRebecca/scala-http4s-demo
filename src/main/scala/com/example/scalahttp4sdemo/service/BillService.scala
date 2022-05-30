@@ -22,7 +22,6 @@ case class UsageResponse(
 class BillService(billDao: BillDao) {
   implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
-
   def getLatestBillDateByCustomerId(customerId: Int): LocalDate = billDao.getBillsByCustomerId(customerId).map(_.billDate).max
 
 
