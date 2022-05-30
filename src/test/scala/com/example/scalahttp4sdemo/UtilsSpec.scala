@@ -31,13 +31,45 @@ class UtilsSpec extends AnyWordSpec with Matchers {
       Utils.filterSpecificBillPeriod(now, now.plusDays(1), now) shouldEqual false
     }
 
-    "return bill date when querying the current bill date given the valid subscribedDate and latestBillDate and queryDate" in {
-      Utils.getTheCurrentBillDate(now, now, now) shouldEqual now
-      Utils.getTheCurrentBillDate(now, now, now.plusDays(1)) shouldEqual now.plusMonths(1)
-      Utils.getTheCurrentBillDate(LocalDate.of(2022, 4,8), LocalDate.of(2022, 5,8), LocalDate.of(2022, 5, 20)) shouldEqual LocalDate.of(2022, 6, 8)
-      Utils.getTheCurrentBillDate(LocalDate.of(2022, 1, 31), LocalDate.of(2022, 1, 31), LocalDate.of(2022, 2, 5)) shouldEqual LocalDate.of(2022, 2, 28)
-      Utils.getTheCurrentBillDate(LocalDate.of(2021, 12, 5), LocalDate.of(2021, 12, 5), LocalDate.of(2022, 12, 8)) shouldEqual LocalDate.of(2022, 1, 5)
+    "return subscribedDate when querying the required bill start date given the valid queryDate equals subscribedDate" in {
+      val subscribedDate = now
+      val queryDate = now
+      val expectedDate = now
+      Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate) shouldEqual expectedDate
     }
+
+    "return subscribedDate when querying the required bill start date given the queryDate within one month after subscribedDate" in {
+      val subscribedDate = now
+      val queryDate = now.plusDays(20)
+      val expectedDate = now
+      Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return the last day of next month when querying the required bill start date given the subscribedDate greater than the last day of next month" in {
+      val subscribedDate = LocalDate.of(2022, 1, 31)
+      val queryDate = LocalDate.of(2022, 3, 2)
+      val expectedDate = LocalDate.of(2022, 2, 28)
+      Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return the same day of next year when querying the required bill start date given the subscribedDate is the last month of the year" in {
+      val subscribedDate = LocalDate.of(2021, 12, 15)
+      val queryDate = LocalDate.of(2022, 1, 20)
+      val expectedDate = LocalDate.of(2022, 1, 15)
+      Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return the same day of the month when querying the required bill start date given the subscribedDate is before some months of queryDate" in {
+      val subscribedDate = LocalDate.of(2022, 1, 5)
+      val queryDate = LocalDate.of(2022, 5, 10)
+      val expectedDate = LocalDate.of(2022, 5, 5)
+      Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return exception when querying the required bill start date given the queryDate is before subscribedDate" in {
+      assertThrows[RuntimeException](Utils.getRequiredBillPeriodStartDate(now, now.minusDays(4)))
+    }
+
 
   }
 

@@ -1,8 +1,26 @@
 package com.example.scalahttp4sdemo
 
-import java.time.{LocalDate, YearMonth}
+import java.time.temporal.TemporalAdjusters
+import java.time.{LocalDate, Period, YearMonth}
 
 object Utils {
+  def getRequiredBillPeriodStartDate(subscribedDate: LocalDate, queryDate: LocalDate): LocalDate =
+    if (queryDate.isBefore(subscribedDate)) throw new RuntimeException(s"query date must be after $subscribedDate")
+    else getTheSpecificStartDate(subscribedDate, queryDate)
+
+  implicit def intToLong(data: Int): Long =  data.toLong
+
+  private def getTheSpecificStartDate(subscribedDate: LocalDate, queryDate: LocalDate): LocalDate = {
+    val day = subscribedDate.getDayOfMonth
+    val period: Period = Period.between(subscribedDate, queryDate)
+    println(period)
+    val yearMonth: YearMonth = YearMonth.from(subscribedDate)
+                                        .plusYears(period.getYears.toLong)
+                                        .plusMonths(period.getMonths.toLong)
+    val lengthOfMonth = yearMonth.lengthOfMonth()
+    if (day > lengthOfMonth) yearMonth.atDay(1).`with`(TemporalAdjusters.lastDayOfMonth()) else yearMonth.atDay(day)
+  }
+
   implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
   def filterSpecificBillPeriod(consumptionDate: LocalDate, startDate: LocalDate, endDate: LocalDate): Boolean = {
@@ -11,10 +29,10 @@ object Utils {
         consumptionDate.isBefore(endDate) || consumptionDate.isEqual(endDate))
   }
 
-  def isTheFirstBill(subscribedDate: LocalDate, latestBillDate: LocalDate, queryDate: LocalDate): Boolean =
+  private def isTheFirstBill(subscribedDate: LocalDate, latestBillDate: LocalDate, queryDate: LocalDate): Boolean =
     subscribedDate.isEqual(latestBillDate) && queryDate.isEqual(subscribedDate)
 
-  def getLastBillDate(subscribedDate: LocalDate, latestBillDate: LocalDate): LocalDate = {
+  private def getLastBillDate(subscribedDate: LocalDate, latestBillDate: LocalDate): LocalDate = {
     val day = subscribedDate.getDayOfMonth
     val nextMothDay = latestBillDate.plusMonths(1).lengthOfMonth()
     if (day > nextMothDay) latestBillDate.plusMonths(1) else YearMonth.from(latestBillDate).plusMonths(1).atDay(day)
