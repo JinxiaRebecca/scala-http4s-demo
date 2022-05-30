@@ -15,11 +15,11 @@ class PackageService {
     Package(3, "Premier", 188, 300, 200, 1, 0.5)
   )
 
-  def fetchPackageOfCustomer(customer: Customer): Package =
-    packagesDb.filter(_.id == customer.packageId)
+  def fetchPackageByPackageId(packageId: Int): Package =
+    packagesDb.filter(_.id == packageId)
               .head match {
       case specificPackage: Package => specificPackage
-      case _ => throw new RuntimeException(s"Package for $customer is not found")
+      case _ => throw new RuntimeException(s"Package of $packageId is not found")
     }
 
 }
