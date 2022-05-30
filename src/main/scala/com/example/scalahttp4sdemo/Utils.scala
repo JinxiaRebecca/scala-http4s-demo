@@ -1,18 +1,13 @@
 package com.example.scalahttp4sdemo
 
-import java.time.{LocalDate, MonthDay}
+import java.time.LocalDate
 
-case class Utils(){
+object Utils {
   implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
-  def filterCurrentBillPeriod(date: LocalDate, billDate: LocalDate): Boolean =  {
-    val now = LocalDate.now()
-    val bill = billDate.getDayOfMonth
-    val currentBillBeginDate = MonthDay.of(now.getMonth, bill)
-    val currentBillEndDate = MonthDay.of(now.getMonth.plus(1), bill - 1)
-    val compareMonthDate = MonthDay.from(date)
-    (compareMonthDate.isAfter(currentBillBeginDate) || compareMonthDate.equals(currentBillBeginDate) ) &&
-      (compareMonthDate.isBefore(currentBillEndDate) || compareMonthDate.equals(currentBillEndDate))
+  def filterSpecificBillPeriod(consumptionDate: LocalDate, startTime: LocalDate, endTime: LocalDate): Boolean = {
+    (consumptionDate.isAfter(startTime) || consumptionDate.isEqual(startTime)) &&
+      consumptionDate.isBefore(endTime) || consumptionDate.isEqual(endTime)
   }
 
 }

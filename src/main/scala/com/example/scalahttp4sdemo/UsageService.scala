@@ -1,6 +1,8 @@
 package com.example.scalahttp4sdemo
 
-import java.time.{LocalDate}
+import com.example.scalahttp4sdemo.dao.UsageDao
+
+import java.time.LocalDate
 case class Usage(
                   id: Int,
                   customerId: Int,
@@ -8,10 +10,8 @@ case class Usage(
                   smsUse: Int,
                   consumptionDate: LocalDate)
 
-class UsageService {
-
-
-  val now = LocalDate.now()
+class UsageService(usageDao: UsageDao) {
+  val now: LocalDate = LocalDate.now()
   val usages: List[Usage] = List(
     Usage(1, 1, 20, 5, now.minusDays(7)),
     Usage(2, 1, 3, 1, now.minusDays(6)),
@@ -22,13 +22,13 @@ class UsageService {
   )
 
 
-  private def fetchTotalUsagesByCustomer(customer: Customer): List[Usage] =
-    usages.filter(_.customerId == customer.id)
-    .filter(usage => Utils().filterCurrentBillPeriod(usage.consumptionDate, customer.billDate))
+  private def fetchTotalUsagesByCustomer(customerId: Int, startTime: LocalDate, endTime: LocalDate): List[Usage] =
+     usageDao.queryAllUsagesByCustomerId(customerId)
+    .filter(usage => Utils.filterSpecificBillPeriod(usage.consumptionDate, startTime, endTime))
 
-  def calculatePhoneUsagesPerCustomerOfCurrentBillPeriod(customer: Customer): Int =
-    fetchTotalUsagesByCustomer(customer).map(_.phoneUse).sum
+  def calculatePhoneUsagesForSpecificPeriodByCustomerId(customerId: Int, startTime: LocalDate, endTime: LocalDate): Int =
+    fetchTotalUsagesByCustomer(customerId, startTime, endTime).map(_.phoneUse).sum
 
-  def calculateSmsUsagesPerCustomerOfCurrentBillPeriod(customer: Customer): Int =
-    fetchTotalUsagesByCustomer(customer).map(_.smsUse).sum
+  def calculateSmsUsagesForSpecificPeriodByCustomerId(customerId: Int, startTime: LocalDate, endTime: LocalDate): Int =
+    fetchTotalUsagesByCustomer(customerId, startTime, endTime).map(_.smsUse).sum
 }
