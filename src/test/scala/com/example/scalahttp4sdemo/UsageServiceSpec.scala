@@ -2,6 +2,7 @@ package com.example.scalahttp4sdemo
 
 
 import com.example.scalahttp4sdemo.dao.UsageDao
+import com.example.scalahttp4sdemo.service.{Usage, UsageService}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers

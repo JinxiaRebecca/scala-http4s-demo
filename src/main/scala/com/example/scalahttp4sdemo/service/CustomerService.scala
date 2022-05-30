@@ -1,4 +1,4 @@
-package com.example.scalahttp4sdemo
+package com.example.scalahttp4sdemo.service
 
 import java.time.LocalDate
 

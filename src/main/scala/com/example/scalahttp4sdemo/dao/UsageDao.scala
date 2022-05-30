@@ -1,7 +1,6 @@
 package com.example.scalahttp4sdemo.dao
 
-import com.example.scalahttp4sdemo.Usage
-
+import com.example.scalahttp4sdemo.service.Usage
 import java.time.LocalDate
 
 

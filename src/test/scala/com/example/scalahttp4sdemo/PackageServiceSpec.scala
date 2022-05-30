@@ -1,5 +1,6 @@
 package com.example.scalahttp4sdemo
 
+import com.example.scalahttp4sdemo.service.PackageService
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

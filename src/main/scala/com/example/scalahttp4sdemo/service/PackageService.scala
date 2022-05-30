@@ -1,4 +1,4 @@
-package com.example.scalahttp4sdemo
+package com.example.scalahttp4sdemo.service
 
 case class Package( var id: Int,
                     var name: String,
