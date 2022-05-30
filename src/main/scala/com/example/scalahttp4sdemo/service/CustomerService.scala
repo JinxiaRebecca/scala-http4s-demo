@@ -6,11 +6,11 @@ case class Customer(
                      var id: Int,
                      var name: String,
                      var packageId: Int,
-                     var billDate: LocalDate
+                     var subscribedDate: LocalDate
                    )
 
 class CustomerService {
-  val now = LocalDate.now()
+  val now: LocalDate = LocalDate.now()
   val customers: List[Customer] = List(
 
     Customer(1, "Lily", 1, now.minusDays(7)),
