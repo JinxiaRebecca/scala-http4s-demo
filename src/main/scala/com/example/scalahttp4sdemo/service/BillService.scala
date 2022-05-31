@@ -30,6 +30,15 @@ class BillService(billDao: BillDao, usageService: UsageService, packageService: 
     val subscribedDate = customer.subscribedDate
     val currentBillStartDate = Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate)
     val currentBillEndDate = Utils.getRequiredBillPeriodEndDate(subscribedDate, queryDate)
+    val bills = getRequiredPeriodBillForCustomer(customer.id, currentBillStartDate, currentBillEndDate)
+    if (bills.size != 0) bills.head else generateBillForCustomer(customer, currentBillStartDate, currentBillEndDate)
+    // TODO if the bill is generated first time, insert the bill to db
+  }
+
+  private def getRequiredPeriodBillForCustomer(customerId: Int, startDate: LocalDate, endDate: LocalDate): List[Bill] =
+    billDao.getBillsByCustomerId(customerId).filter(bill => bill.billStartDate.equals(startDate) && bill.billEndDate.isEqual(endDate))
+
+  private def generateBillForCustomer(customer: Customer, currentBillStartDate: LocalDate, currentBillEndDate: LocalDate): Bill = {
     val phoneUsed = usageService.calculatePhoneUsagesForSpecificPeriodByCustomerId(customer.id, currentBillStartDate, currentBillEndDate)
     val smsUsed = usageService.calculateSmsUsagesForSpecificPeriodByCustomerId(customer.id, currentBillStartDate, currentBillEndDate)
     val packages = packageService.fetchPackageByPackageId(customer.packageId)
@@ -38,9 +47,11 @@ class BillService(billDao: BillDao, usageService: UsageService, packageService: 
     val exPhoneFee = if (phoneUseLeft < 0) Math.abs(phoneUseLeft) * packages.exPhoneFee else BigDecimal.valueOf(0)
     val exSmsFee = if(smsUseLeft < 0) Math.abs(smsUseLeft) * packages.exSmsFee else BigDecimal.valueOf(0)
     val totalCost = packages.subscriptionFee + exSmsFee + exPhoneFee
-    Bill(scala.util.Random.nextInt(Integer.MAX_VALUE), customer.id, customer.name, packages.name, phoneUsed, smsUsed, totalCost,
+    val id = scala.util.Random.nextInt(Integer.MAX_VALUE)
+    Bill(id, customer.id, customer.name, packages.name, phoneUsed, smsUsed, totalCost,
       currentBillStartDate, currentBillEndDate, "pendingPayment")
   }
+
 
 
 }
