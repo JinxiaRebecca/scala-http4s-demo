@@ -32,24 +32,4 @@ object Utils {
         consumptionDate.isBefore(endDate) || consumptionDate.isEqual(endDate))
   }
 
-  private def isTheFirstBill(subscribedDate: LocalDate, latestBillDate: LocalDate, queryDate: LocalDate): Boolean =
-    subscribedDate.isEqual(latestBillDate) && queryDate.isEqual(subscribedDate)
-
-  private def getLastBillDate(subscribedDate: LocalDate, latestBillDate: LocalDate): LocalDate = {
-    val day = subscribedDate.getDayOfMonth
-    val nextMothDay = latestBillDate.plusMonths(1).lengthOfMonth()
-    if (day > nextMothDay) latestBillDate.plusMonths(1) else YearMonth.from(latestBillDate).plusMonths(1).atDay(day)
-  }
-
-  def getTheCurrentBillDate(subscribedDate: LocalDate, latestBillDate: LocalDate, queryDate: LocalDate): LocalDate = {
-    if (isTheFirstBill(subscribedDate, latestBillDate, queryDate)) subscribedDate
-    else getLastBillDate(subscribedDate, latestBillDate)
-  }
-
-
-
-
-
-
-
 }
