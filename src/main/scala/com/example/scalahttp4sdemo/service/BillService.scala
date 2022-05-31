@@ -22,6 +22,16 @@ case class UsageResponse(
                         )
 
 class BillService(billDao: BillDao, usageService: UsageService, packageService: PackageService) {
+  def updateStatusOfSpecificBill(needUpdateBill: Bill): Boolean = {
+    val billsById = billDao.fetchBillById(needUpdateBill.id)
+    val oldBil = if (billsById.nonEmpty) billsById.head else  throw new RuntimeException("bill not exist")
+    if (oldBil.status.equals("completed") || oldBil.status.equals(needUpdateBill.status) || needUpdateBill.consumptionCost != oldBil.consumptionCost) false
+    else {
+      val updatedResult = billDao.updateStatusOfBill(needUpdateBill)
+      if (updatedResult.contains(needUpdateBill)) true else false
+    }
+  }
+
   implicit val localDateOrdering: Ordering[LocalDate] = _ compareTo _
 
   def getLatestBillDateByCustomerId(customerId: Int): LocalDate = billDao.getBillsByCustomerId(customerId).map(_.billEndDate).max
@@ -31,11 +41,11 @@ class BillService(billDao: BillDao, usageService: UsageService, packageService: 
     val currentBillStartDate = Utils.getRequiredBillPeriodStartDate(subscribedDate, queryDate)
     val currentBillEndDate = Utils.getRequiredBillPeriodEndDate(subscribedDate, queryDate)
     val bills = getRequiredPeriodBillForCustomer(customer.id, currentBillStartDate, currentBillEndDate)
-    if (bills.size != 0) bills.head else generateBillForCustomer(customer, currentBillStartDate, currentBillEndDate)
+    if (bills.nonEmpty) bills.head else generateBillForCustomer(customer, currentBillStartDate, currentBillEndDate)
     // TODO if the bill is generated first time, insert the bill to db
   }
 
-  private def getRequiredPeriodBillForCustomer(customerId: Int, startDate: LocalDate, endDate: LocalDate): List[Bill] =
+  private def getRequiredPeriodBillForCustomer(customerId: Int, startDate: LocalDate, endDate: LocalDate): Seq[Bill] =
     billDao.getBillsByCustomerId(customerId).filter(bill => bill.billStartDate.equals(startDate) && bill.billEndDate.isEqual(endDate))
 
   private def generateBillForCustomer(customer: Customer, currentBillStartDate: LocalDate, currentBillEndDate: LocalDate): Bill = {
