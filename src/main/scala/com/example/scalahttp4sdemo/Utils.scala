@@ -8,12 +8,15 @@ object Utils {
     if (queryDate.isBefore(subscribedDate)) throw new RuntimeException(s"query date must be after $subscribedDate")
     else getTheSpecificStartDate(subscribedDate, queryDate)
 
+  def getRequiredBillPeriodEndDate(subscribedDate: LocalDate, queryDate: LocalDate): LocalDate =
+    if (subscribedDate.isEqual(queryDate)) subscribedDate
+    else getRequiredBillPeriodStartDate(subscribedDate, queryDate).plusMonths(1).minusDays(1)
+
   implicit def intToLong(data: Int): Long =  data.toLong
 
   private def getTheSpecificStartDate(subscribedDate: LocalDate, queryDate: LocalDate): LocalDate = {
     val day = subscribedDate.getDayOfMonth
     val period: Period = Period.between(subscribedDate, queryDate)
-    println(period)
     val yearMonth: YearMonth = YearMonth.from(subscribedDate)
                                         .plusYears(period.getYears.toLong)
                                         .plusMonths(period.getMonths.toLong)

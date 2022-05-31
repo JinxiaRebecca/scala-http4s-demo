@@ -70,7 +70,30 @@ class UtilsSpec extends AnyWordSpec with Matchers {
       assertThrows[RuntimeException](Utils.getRequiredBillPeriodStartDate(now, now.minusDays(4)))
     }
 
+    "return exception when querying the required bill end date given the queryDate is before subscribedDate" in {
+      assertThrows[RuntimeException](Utils.getRequiredBillPeriodEndDate(now, now.minusDays(4)))
+    }
 
+    "return the last day of the same month when querying the required bill end date given the subscribedDate is the first day of month" in {
+      val subscribedDate = LocalDate.of(2022, 5, 1)
+      val queryDate = LocalDate.of(2022, 5, 20)
+      val expectedDate = LocalDate.of(2022, 5, 31)
+      Utils.getRequiredBillPeriodEndDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return the subscribedDate when querying the required bill end date given the queryDate is the same day as subscribedDate" in {
+      val subscribedDate = LocalDate.of(2022, 5, 20)
+      val queryDate = LocalDate.of(2022, 5, 20)
+      val expectedDate = LocalDate.of(2022, 5, 20)
+      Utils.getRequiredBillPeriodEndDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
+
+    "return the day before day of subscribedDate in next year when querying required bill end date given the queryDate is not the same year as subscribedDate" in {
+      val subscribedDate = LocalDate.of(2021, 11, 18)
+      val queryDate = LocalDate.of(2022, 1, 10)
+      val expectedDate = LocalDate.of(2022, 1, 17)
+      Utils.getRequiredBillPeriodEndDate(subscribedDate, queryDate) shouldEqual expectedDate
+    }
   }
 
 }
