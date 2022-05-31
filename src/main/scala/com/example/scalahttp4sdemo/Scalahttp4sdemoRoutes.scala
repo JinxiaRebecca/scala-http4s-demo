@@ -2,8 +2,7 @@ package com.example.scalahttp4sdemo
 
 import cats.effect.Sync
 import cats.implicits._
-import com.example.scalahttp4sdemo.dao.BillDao
-import com.example.scalahttp4sdemo.service.{BillService, CustomerService, PackageService, UsageService}
+import com.example.scalahttp4sdemo.service.{CustomerService, PackageService, UsageService}
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -49,8 +48,8 @@ object Scalahttp4sdemoRoutes {
       case GET -> Root / "reserved-usage"/ IntVar(customerId)  =>
             val customer = customerService.fetchCustomerByCustomerId(customerId)
             val subscribedDate = customer.subscribedDate
-            val currentBillEndDate = Utils.getTheCurrentBillDate(subscribedDate, new BillService(new BillDao()).getLatestBillDateByCustomerId(customerId), LocalDate.now())
-            val currentBillStartDate = if(currentBillEndDate.isEqual(subscribedDate)) subscribedDate else currentBillEndDate.minusMonths(1)
+            val currentBillStartDate = Utils.getRequiredBillPeriodStartDate(subscribedDate, LocalDate.now())
+            val currentBillEndDate = Utils.getRequiredBillPeriodEndDate(subscribedDate, LocalDate.now())
             val phoneUse= usageService.calculatePhoneUsagesForSpecificPeriodByCustomerId(customerId, currentBillStartDate, currentBillEndDate)
             val smsUse = usageService.calculateSmsUsagesForSpecificPeriodByCustomerId(customerId, currentBillStartDate, currentBillEndDate)
             val packages = packageService.fetchPackageByPackageId(customer.packageId)
