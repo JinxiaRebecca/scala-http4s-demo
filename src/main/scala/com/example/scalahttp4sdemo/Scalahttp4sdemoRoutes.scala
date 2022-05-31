@@ -2,7 +2,7 @@ package com.example.scalahttp4sdemo
 
 import cats.effect.Sync
 import cats.implicits._
-import com.example.scalahttp4sdemo.service.{CustomerService, PackageService, UsageService}
+import com.example.scalahttp4sdemo.service.{Bill, BillService, CustomerService, PackageService, UsageService}
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -56,6 +56,21 @@ object Scalahttp4sdemoRoutes {
             Ok(UsageResponse(packages.phoneLimitation - phoneUse, packages.smsLimitation -smsUse))
     }
   }
+
+    def BillRoutes[F[_] :Sync](customerService: CustomerService, billService: BillService): HttpRoutes[F] = {
+      val dsl = new Http4sDsl[F] {}
+      import dsl._
+      HttpRoutes.of[F] {
+        case GET -> Root / "all-bills" =>
+          customerService.fetchAllCustomers().map(customer =>
+            billService.calculateQueriedBillForSpecificCustomer(customer, LocalDate.now())
+          ) match {
+            case bills: List[Bill] => Ok(bills)
+            case _ => NotFound("unknown error happened")
+          }
+      }
+    }
+
 
 
 }

@@ -3,8 +3,8 @@ package com.example.scalahttp4sdemo
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
 import com.comcast.ip4s._
-import com.example.scalahttp4sdemo.dao.{CustomerDao, UsageDao}
-import com.example.scalahttp4sdemo.service.{CustomerService, PackageService, UsageService}
+import com.example.scalahttp4sdemo.dao.{BillDao, CustomerDao, UsageDao}
+import com.example.scalahttp4sdemo.service.{BillService, CustomerService, PackageService, UsageService}
 import fs2.Stream
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
@@ -20,7 +20,7 @@ object Scalahttp4sdemoServer {
       customerService = new  CustomerService(new CustomerDao())
       usageService = new UsageService(new UsageDao())
       packageService=  new PackageService()
-
+      billService = new BillService(new BillDao(), usageService, packageService)
       // Combine Service Routes into an HttpApp.
       // Can also be done via a Router if you
       // want to extract segments not checked
@@ -28,7 +28,8 @@ object Scalahttp4sdemoServer {
       httpApp = (
         Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
-          Scalahttp4sdemoRoutes.UsageRoutes[F](customerService, usageService, packageService)
+          Scalahttp4sdemoRoutes.UsageRoutes[F](customerService, usageService, packageService) <+>
+          Scalahttp4sdemoRoutes.BillRoutes[F](customerService, billService)
       ).orNotFound
 
       // With Middlewares in place
