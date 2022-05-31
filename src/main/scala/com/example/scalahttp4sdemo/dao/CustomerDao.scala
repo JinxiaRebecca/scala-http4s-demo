@@ -13,6 +13,7 @@ class CustomerDao {
   )
 
   def fetchAllCustomers(): List[Customer] = customers
-  def fetchCustomerById(customerId: Int): Customer = customers.filter(_.id == customerId).head
+
+  def fetchCustomerById(customerId: Int): List[Customer] = customers.filter(_.id == customerId)
 
 }

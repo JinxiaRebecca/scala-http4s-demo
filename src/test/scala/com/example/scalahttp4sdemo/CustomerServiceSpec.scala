@@ -22,12 +22,12 @@ class CustomerServiceSpec extends AnyWordSpec with Matchers with MockitoSugar {
   "Customer Service Spec" should {
 
     "return customer when querying customer given a valid customer id" in {
-      when(mockedCustomerDao.fetchCustomerById(any[Int])) thenReturn Customer(1, "Lily", 1, now.minusDays(7))
+      when(mockedCustomerDao.fetchCustomerById(any[Int])) thenReturn List(Customer(1, "Lily", 1, now.minusDays(7)))
       customerService.fetchCustomerByCustomerId(1) shouldEqual Customer(1, "Lily", 1, LocalDate.now().minusDays(7))
     }
 
     "return exception when querying customer given a invalid customer id" in {
-      when(mockedCustomerDao.fetchCustomerById(any[Int])) thenReturn null
+      when(mockedCustomerDao.fetchCustomerById(any[Int])) thenReturn List()
       assertThrows[RuntimeException](customerService.fetchCustomerByCustomerId(-1))
     }
 

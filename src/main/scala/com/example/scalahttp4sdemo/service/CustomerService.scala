@@ -16,7 +16,7 @@ class CustomerService(customerDao: CustomerDao) {
 
 
   def fetchCustomerByCustomerId(id: Int): Customer = customerDao.fetchCustomerById(id) match {
-    case customer: Customer => customer
+    case customers: List[Customer] => if (customers.nonEmpty) customers.head else throw new RuntimeException("customer not exist")
     case _ => throw new RuntimeException("customer not exist")
   }
   
