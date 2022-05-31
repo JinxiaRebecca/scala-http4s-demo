@@ -68,6 +68,10 @@ object Scalahttp4sdemoRoutes {
             case bills: List[Bill] => Ok(bills)
             case _ => NotFound("unknown error happened")
           }
+        case GET -> Root / "current-bill" / IntVar(customerId) =>
+            val customer = customerService.fetchCustomerByCustomerId(customerId)
+            val bill = billService.calculateQueriedBillForSpecificCustomer(customer, LocalDate.now())
+            Ok(bill)
       }
     }
 
