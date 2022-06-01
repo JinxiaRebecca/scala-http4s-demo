@@ -29,7 +29,8 @@ object Scalahttp4sdemoServer {
         Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
           Scalahttp4sdemoRoutes.UsageRoutes[F](customerService, usageService, packageService) <+>
-          Scalahttp4sdemoRoutes.BillRoutes[F](customerService, billService)
+          Scalahttp4sdemoRoutes.BillRoutes[F](customerService, billService) <+>
+          PaymentRoutes.paymentRoutes[F](billService)
       ).orNotFound
 
       // With Middlewares in place
