@@ -1,6 +1,7 @@
 package com.example.scalahttp4sdemo
 
 import cats.effect.IO
+import com.example.scalahttp4sdemo.controller.DemoController
 import org.http4s._
 import org.http4s.implicits._
 import munit.CatsEffectSuite
@@ -14,6 +15,6 @@ class HelloWorldSpec extends CatsEffectSuite {
   private[this] val retHelloWorld: IO[Response[IO]] = {
     val getHW = Request[IO](Method.GET, uri"/hello/world")
     val helloWorld = HelloWorld.impl[IO]
-    Scalahttp4sdemoRoutes.helloWorldRoutes(helloWorld).orNotFound(getHW)
+    DemoController.helloWorldRoutes(helloWorld).orNotFound(getHW)
   }
 }

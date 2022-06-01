@@ -3,7 +3,7 @@ package com.example.scalahttp4sdemo
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
 import com.comcast.ip4s._
-import com.example.scalahttp4sdemo.controller.{BillController, PaymentController, UsageController}
+import com.example.scalahttp4sdemo.controller.{BillController, PaymentController, DemoController, UsageController}
 import com.example.scalahttp4sdemo.dao.{BillDao, CustomerDao, UsageDao}
 import com.example.scalahttp4sdemo.service.{BillService, CustomerService, PackageService, UsageService}
 import fs2.Stream
@@ -11,7 +11,7 @@ import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.Logger
 
-object Scalahttp4sdemoServer {
+object jtcBillSysServer {
 
   def stream[F[_]: Async]: Stream[F, Nothing] = {
     for {
@@ -27,8 +27,8 @@ object Scalahttp4sdemoServer {
       // want to extract segments not checked
       // in the underlying routes.
       httpApp = (
-        Scalahttp4sdemoRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
+        DemoController.helloWorldRoutes[F](helloWorldAlg) <+>
+        DemoController.jokeRoutes[F](jokeAlg) <+>
           UsageController.UsageRoutes[F](customerService, usageService, packageService) <+>
           BillController.BillRoutes[F](customerService, billService) <+>
           PaymentController.paymentRoutes[F](billService)
