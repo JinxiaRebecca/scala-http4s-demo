@@ -3,6 +3,7 @@ package com.example.scalahttp4sdemo
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
 import com.comcast.ip4s._
+import com.example.scalahttp4sdemo.controller.PaymentRoutes
 import com.example.scalahttp4sdemo.dao.{BillDao, CustomerDao, UsageDao}
 import com.example.scalahttp4sdemo.service.{BillService, CustomerService, PackageService, UsageService}
 import fs2.Stream

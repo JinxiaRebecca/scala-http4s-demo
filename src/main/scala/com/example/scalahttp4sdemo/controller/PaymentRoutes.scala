@@ -1,4 +1,4 @@
-package com.example.scalahttp4sdemo
+package com.example.scalahttp4sdemo.controller
 
 import cats.effect._
 import cats.implicits._
@@ -9,6 +9,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.dsl._
 import scala.util.Try
+
 
 object PaymentRoutes {
 
@@ -31,4 +32,3 @@ object PaymentRoutes {
   }
 
 }
-
