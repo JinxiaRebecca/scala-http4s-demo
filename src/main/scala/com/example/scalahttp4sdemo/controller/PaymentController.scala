@@ -11,14 +11,14 @@ import org.http4s.dsl._
 import scala.util.Try
 
 
-object PaymentRoutes {
+object PaymentController {
 
   def paymentRoutes[F[_] : Concurrent](billService: BillService): HttpRoutes[F] = {
     val dsl = Http4sDsl[F]
     import dsl._
     implicit val directorDecoder: EntityDecoder[F, Bill] = jsonOf[F, Bill]
     HttpRoutes.of[F] {
-      case req@POST -> Root / "directors" =>
+      case req@POST -> Root / "bill-payment" =>
         for {
           bill <- req.as[Bill]
           res <- Try(billService.updateStatusOfSpecificBill(bill))
@@ -26,7 +26,6 @@ object PaymentRoutes {
             l => BadRequest(l.getMessage),
             r => Ok(r.asJson)
           )
-
         } yield res
     }
   }

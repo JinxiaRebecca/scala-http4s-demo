@@ -3,7 +3,7 @@ package com.example.scalahttp4sdemo
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
 import com.comcast.ip4s._
-import com.example.scalahttp4sdemo.controller.{PaymentRoutes, UsageController}
+import com.example.scalahttp4sdemo.controller.{PaymentController, UsageController}
 import com.example.scalahttp4sdemo.dao.{BillDao, CustomerDao, UsageDao}
 import com.example.scalahttp4sdemo.service.{BillService, CustomerService, PackageService, UsageService}
 import fs2.Stream
@@ -31,7 +31,7 @@ object Scalahttp4sdemoServer {
         Scalahttp4sdemoRoutes.jokeRoutes[F](jokeAlg) <+>
           UsageController.UsageRoutes[F](customerService, usageService, packageService) <+>
           Scalahttp4sdemoRoutes.BillRoutes[F](customerService, billService) <+>
-          PaymentRoutes.paymentRoutes[F](billService)
+          PaymentController.paymentRoutes[F](billService)
       ).orNotFound
 
       // With Middlewares in place
