@@ -1,4 +1,4 @@
-package com.example.scalahttp4sdemo
+package com.example.scalahttp4sdemo.common
 
 import java.time.temporal.TemporalAdjusters
 import java.time.{LocalDate, Period, YearMonth}
@@ -12,14 +12,14 @@ object Utils {
     if (subscribedDate.isEqual(queryDate)) subscribedDate
     else getRequiredBillPeriodStartDate(subscribedDate, queryDate).plusMonths(1).minusDays(1)
 
-  implicit def intToLong(data: Int): Long =  data.toLong
+  implicit def intToLong(data: Int): Long = data.toLong
 
   private def getTheSpecificStartDate(subscribedDate: LocalDate, queryDate: LocalDate): LocalDate = {
     val day = subscribedDate.getDayOfMonth
     val period: Period = Period.between(subscribedDate, queryDate)
     val yearMonth: YearMonth = YearMonth.from(subscribedDate)
-                                        .plusYears(period.getYears.toLong)
-                                        .plusMonths(period.getMonths.toLong)
+      .plusYears(period.getYears.toLong)
+      .plusMonths(period.getMonths.toLong)
     val lengthOfMonth = yearMonth.lengthOfMonth()
     if (day > lengthOfMonth) yearMonth.atDay(1).`with`(TemporalAdjusters.lastDayOfMonth()) else yearMonth.atDay(day)
   }

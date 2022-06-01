@@ -1,7 +1,7 @@
 package com.example.scalahttp4sdemo.controller
 
 import cats.effect.Sync
-import com.example.scalahttp4sdemo.Utils
+import com.example.scalahttp4sdemo.common.Utils
 import com.example.scalahttp4sdemo.service.{CustomerService, PackageService, UsageService}
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import org.http4s.HttpRoutes
