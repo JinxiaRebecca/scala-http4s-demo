@@ -19,8 +19,8 @@ object jtcBillSysServer {
       helloWorldAlg = HelloWorld.impl[F]
       jokeAlg = Jokes.impl[F](client)
       customerService = new  CustomerService(new CustomerDao())
-      usageService = new UsageService(new UsageDao())
       packageService=  new PackageService()
+      usageService = new UsageService(new UsageDao(),customerService, packageService)
       billService = new BillService(new BillDao(), usageService, packageService)
       // Combine Service Routes into an HttpApp.
       // Can also be done via a Router if you
@@ -29,7 +29,7 @@ object jtcBillSysServer {
       httpApp = (
         DemoController.helloWorldRoutes[F](helloWorldAlg) <+>
         DemoController.jokeRoutes[F](jokeAlg) <+>
-          UsageController.UsageRoutes[F](customerService, usageService, packageService) <+>
+          UsageController.UsageRoutes[F](usageService) <+>
           BillController.BillRoutes[F](customerService, billService) <+>
           PaymentController.paymentRoutes[F](billService)
       ).orNotFound
