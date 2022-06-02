@@ -16,10 +16,6 @@ case class Bill(
                  billStartDate: LocalDate,
                  billEndDate: LocalDate,
                  status: String)
-case class UsageResponse(
-                          var phoneUseLeft: Int,
-                          var smsUseLeft: Int,
-                        )
 
 class BillService(billDao: BillDao, usageService: UsageService, packageService: PackageService) {
   def updateStatusOfSpecificBill(needUpdateBill: Bill): Boolean = {
