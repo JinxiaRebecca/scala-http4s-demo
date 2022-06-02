@@ -16,10 +16,6 @@ class PackageService {
   )
 
   def fetchPackageByPackageId(packageId: Int): Package =
-    packagesDb.filter(_.id == packageId)
-              .head match {
-      case specificPackage: Package => specificPackage
-      case _ => throw new RuntimeException(s"Package of $packageId is not found")
-    }
+    packagesDb.filter(_.id == packageId).head
 
 }
